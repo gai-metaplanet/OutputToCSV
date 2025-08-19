@@ -20,17 +20,16 @@ if st.button("データ取得"):
             break
 
     if target_script:
-        # self.__next_f.push([...]) 内の "..." を抜き出す
-        match = re.search(r'self\.__next_f\.push\(\[.*?"(.*chartOptionsData.*)".*\]\)', target_script, re.S)
+        # 波括弧 { から chartOptionsData が入っている部分だけを抽出
+        match = re.search(r'({.*"chartOptionsData":.*})', target_script, re.S)
         if match:
-            raw_str = match.group(1)
+            raw_json = match.group(1)
+
+            # JSON内のエスケープ文字を戻す
+            fixed_json_str = raw_json.encode("utf-8").decode("unicode_escape")
 
             try:
-                # 1回目の json.loads でエスケープ解除
-                unescaped = json.loads(f'"{raw_str}"')
-                # 2回目で dict 化
-                data_obj = json.loads(unescaped)
-
+                data_obj = json.loads(fixed_json_str)
                 chart_data_list = data_obj["chartOptionsData"]
 
                 for chart in chart_data_list:
@@ -51,8 +50,8 @@ if st.button("データ取得"):
 
             except Exception as e:
                 st.error(f"JSONパース失敗: {e}")
-                st.text(raw_str[:500])
+                st.text(fixed_json_str[:500])
         else:
-            st.error("chartOptionsData を含む文字列が見つかりませんでした")
+            st.error("chartOptionsData を含む JSON 部分が見つかりませんでした")
     else:
         st.error("対象の <script> が見つかりませんでした")
