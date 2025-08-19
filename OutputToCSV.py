@@ -15,17 +15,21 @@ if st.button("データ取得"):
 
     target_script = None
     for script in soup.find_all("script"):
-        if script.string and "chartOptionsData" in script.string:
-            target_script = script.string
+        script_content = script.string or ''.join(script.contents)
+        if "chartOptionsData" in script_content:
+            target_script = script_content
             break
 
     if target_script:
-        # 波括弧 { から chartOptionsData が入っている部分だけを抽出
-        match = re.search(r'({.*"chartOptionsData":.*})', target_script, re.S)
+        # 柔軟な正規表現で chartOptionsData を含む JSON を抽出
+        match = re.search(r'chartOptionsData\s*=\s*(\{.*?\});', target_script, re.S)
+        if not match:
+            match = re.search(r'({.*"chartOptionsData".*})', target_script, re.S)
+
         if match:
             raw_json = match.group(1)
 
-            # JSON内のエスケープ文字を戻す
+            # エスケープ文字の処理
             fixed_json_str = raw_json.encode("utf-8").decode("unicode_escape")
 
             try:
