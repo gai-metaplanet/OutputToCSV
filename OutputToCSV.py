@@ -22,15 +22,25 @@ if st.button("データ取得"):
             break
 
     if target_script:
-        # chartOptionsData を抽出
+        # chartOptionsData の JSON 部分を抜き出し
         match = re.search(r'"chartOptionsData":(\[.*?\])', target_script, re.S)
         if match:
-            chart_data_list = json.loads(match.group(1))
+            raw_json = match.group(1)
+
+            # JSON内のエスケープを直す（\" → " など）
+            fixed_json = raw_json.encode("utf-8").decode("unicode_escape")
+
+            try:
+                chart_data_list = json.loads(fixed_json)
+            except Exception as e:
+                st.error(f"JSONパース失敗: {e}")
+                st.text(fixed_json[:500])  # デバッグ表示
+                chart_data_list = []
 
             for chart in chart_data_list:
                 df = pd.DataFrame(chart["chartData"])
-                df["label"] = chart["label"]     # グラフ名
-                df["ticker"] = chart["ticker"]   # 識別子
+                df["label"] = chart["label"]
+                df["ticker"] = chart["ticker"]
 
                 st.subheader(chart["label"])
                 st.write(df.head())
@@ -44,6 +54,6 @@ if st.button("データ取得"):
                     mime="text/csv"
                 )
         else:
-            st.error("chartOptionsData を抽出できませんでした")
+            st.error("chartOptionsData を抽出できませんでした（正規表現マッチなし）")
     else:
         st.error("対象の <script> が見つかりませんでした")
