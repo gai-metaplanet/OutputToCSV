@@ -7,7 +7,7 @@ from bs4 import BeautifulSoup
 
 st.title("Metaplanet Analytics グラフデータ収集")
 
-url = "https://metaplanet.jp/jp/analytics"
+url = "https://metaplanet.jp/en/analytics"
 
 if st.button("データ取得"):
     res = requests.get(url)
