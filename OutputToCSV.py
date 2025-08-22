@@ -16,32 +16,26 @@ if st.button("データ取得"):
     target_script = None
     all_scripts = soup.find_all("script")
 
-    # すべての <script> タグの中身を表示（デバッグ用）
     st.subheader("取得した <script> タグ一覧（先頭1000文字）")
     for i, script in enumerate(all_scripts):
         script_content = script.string or ''.join(script.contents)
         if script_content:
             st.text(f"--- script[{i}] ---")
-            st.code(script_content[:1000])  # 長すぎる場合は先頭1000文字だけ表示
+            st.code(script_content[:1000])
 
         # chartOptionsData を含むスクリプトを探す
         if "chartOptionsData" in script_content and not target_script:
             target_script = script_content
 
     if target_script:
-        # 柔軟な正規表現で chartOptionsData を含む JSON を抽出
-        match = re.search(r'chartOptionsData\s*=\s*(\{.*?\});', target_script, re.S)
-        if not match:
-            match = re.search(r'({.*"chartOptionsData".*})', target_script, re.S)
-
+        # Next.js の push(...) 内の JSON を抽出
+        match = re.search(r'self\.__next_f\.push\(\[.*?({.*?"chartOptionsData".*?})\].*?\)', target_script, re.S)
         if match:
             raw_json = match.group(1)
 
-            # エスケープ文字の処理
-            fixed_json_str = raw_json.encode("utf-8").decode("unicode_escape")
-
+            # JSON整形（必要に応じて修正）
             try:
-                data_obj = json.loads(fixed_json_str)
+                data_obj = json.loads(raw_json)
                 chart_data_list = data_obj["chartOptionsData"]
 
                 for chart in chart_data_list:
@@ -63,7 +57,7 @@ if st.button("データ取得"):
             except Exception as e:
                 st.error(f"JSONパース失敗: {e}")
                 st.subheader("抽出された JSON（先頭500文字）")
-                st.code(fixed_json_str[:500])
+                st.code(raw_json[:500])
         else:
             st.error("chartOptionsData を含む JSON 部分が見つかりませんでした")
             st.subheader("対象スクリプトの内容（先頭1000文字）")
