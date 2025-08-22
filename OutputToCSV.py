@@ -14,11 +14,19 @@ if st.button("データ取得"):
     soup = BeautifulSoup(res.text, "html.parser")
 
     target_script = None
-    for script in soup.find_all("script"):
+    all_scripts = soup.find_all("script")
+
+    # すべての <script> タグの中身を表示（デバッグ用）
+    st.subheader("取得した <script> タグ一覧（先頭1000文字）")
+    for i, script in enumerate(all_scripts):
         script_content = script.string or ''.join(script.contents)
-        if "chartOptionsData" in script_content:
+        if script_content:
+            st.text(f"--- script[{i}] ---")
+            st.code(script_content[:1000])  # 長すぎる場合は先頭1000文字だけ表示
+
+        # chartOptionsData を含むスクリプトを探す
+        if "chartOptionsData" in script_content and not target_script:
             target_script = script_content
-            break
 
     if target_script:
         # 柔軟な正規表現で chartOptionsData を含む JSON を抽出
@@ -44,13 +52,6 @@ if st.button("データ取得"):
                     st.subheader(chart["label"])
                     st.write(df.head())
 
-                    st.subheader("取得した <script> タグ一覧")
-                    for i, script in enumerate(soup.find_all("script")):
-                        script_content = script.string or ''.join(script.contents)
-                        if script_content:
-                            st.text(f"--- script[{i}] ---")
-                            st.code(script_content[:1000])  # 長すぎる場合は先頭1000文字だけ表示
-        
                     csv = df.to_csv(index=False)
                     st.download_button(
                         label=f"{chart['ticker']}.csv をダウンロード",
@@ -61,8 +62,11 @@ if st.button("データ取得"):
 
             except Exception as e:
                 st.error(f"JSONパース失敗: {e}")
-                st.text(fixed_json_str[:500])
+                st.subheader("抽出された JSON（先頭500文字）")
+                st.code(fixed_json_str[:500])
         else:
             st.error("chartOptionsData を含む JSON 部分が見つかりませんでした")
+            st.subheader("対象スクリプトの内容（先頭1000文字）")
+            st.code(target_script[:1000])
     else:
         st.error("対象の <script> が見つかりませんでした")
