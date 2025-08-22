@@ -1,34 +1,3 @@
-import re
-import json
-import requests
-import pandas as pd
-import streamlit as st
-from bs4 import BeautifulSoup
-
-st.title("Metaplanet Analytics グラフデータ収集")
-
-url = "https://metaplanet.jp/en/analytics"
-
-if st.button("データ取得"):
-    res = requests.get(url)
-    soup = BeautifulSoup(res.text, "html.parser")
-
-    target_script = None
-    all_scripts = soup.find_all("script")
-
-    st.subheader("取得した <script> タグ一覧（先頭1000文字）")
-    for i, script in enumerate(all_scripts):
-        script_content = script.string or ''.join(script.contents)
-        if script_content:
-            st.text(f"--- script[{i}] ---")
-            st.code(script_content[:1000])
-
-        # chartOptionsData を含むスクリプトを探す
-        if "chartOptionsData" in script_content and not target_script:
-            target_script = script_content
-
-    if target_script:
-        # Next.js の push(...) 内の JSON を抽出
         match = re.search(r'self\.__next_f\.push\(\[\d+,"(.*?)"\]\);', target_script, re.S)
         if match:
             escaped_str = match.group(1)
