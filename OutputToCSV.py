@@ -29,38 +29,25 @@ if st.button("データ取得"):
 
     if target_script:
         # Next.js の push(...) 内の JSON を抽出
-        match = re.search(r'self\.__next_f\.push\(\[.*?({.*?"chartOptionsData".*?})\].*?\)', target_script, re.S)
+        match = re.search(r'self\.__next_f\.push\(\[(\d+),"(.*?)"\]\);', target_script, re.S)
         if match:
-            raw_json = match.group(1)
-
-            # JSON整形（必要に応じて修正）
-            try:
-                data_obj = json.loads(raw_json)
-                chart_data_list = data_obj["chartOptionsData"]
-
-                for chart in chart_data_list:
-                    df = pd.DataFrame(chart["chartData"])
-                    df["label"] = chart["label"]
-                    df["ticker"] = chart["ticker"]
-
-                    st.subheader(chart["label"])
-                    st.write(df.head())
-
-                    csv = df.to_csv(index=False)
-                    st.download_button(
-                        label=f"{chart['ticker']}.csv をダウンロード",
-                        data=csv,
-                        file_name=f"{chart['ticker']}.csv",
-                        mime="text/csv"
-                    )
-
-            except Exception as e:
-                st.error(f"JSONパース失敗: {e}")
-                st.subheader("抽出された JSON（先頭500文字）")
-                st.code(raw_json[:500])
+            raw_str = match.group(2)
+            decoded_str = bytes(raw_str, "utf-8").decode("unicode_escape")
+        
+            json_match = re.search(r'{"chartOptionsData":\[.*?\]}', decoded_str, re.S)
+            if json_match:
+                json_str = json_match.group(0)
+                try:
+                    data_obj = json.loads(json_str)
+                    chart_data_list = data_obj["chartOptionsData"]
+                    # あとは従来通り DataFrame → CSV
+                except Exception as e:
+                    st.error(f"JSONパース失敗: {e}")
+                    st.code(json_str[:500])
+            else:
+                st.error("chartOptionsData を含む JSON 部分が見つかりませんでした")
+                st.code(decoded_str[:1000])
         else:
-            st.error("chartOptionsData を含む JSON 部分が見つかりませんでした")
-            st.subheader("対象スクリプトの内容（先頭1000文字）")
-            st.code(target_script[:1000])
+            st.error("self.__next_f.push(...) の構造が見つかりませんでした")
     else:
         st.error("対象の <script> が見つかりませんでした")
