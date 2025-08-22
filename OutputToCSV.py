@@ -44,6 +44,13 @@ if st.button("データ取得"):
                     st.subheader(chart["label"])
                     st.write(df.head())
 
+                    st.subheader("取得した <script> タグ一覧")
+                    for i, script in enumerate(soup.find_all("script")):
+                        script_content = script.string or ''.join(script.contents)
+                        if script_content:
+                            st.text(f"--- script[{i}] ---")
+                            st.code(script_content[:1000])  # 長すぎる場合は先頭1000文字だけ表示
+        
                     csv = df.to_csv(index=False)
                     st.download_button(
                         label=f"{chart['ticker']}.csv をダウンロード",
