@@ -30,9 +30,9 @@ if st.button("データ取得"):
 
     if target_script:
         # 柔軟な正規表現で chartOptionsData を含む JSON を抽出
-        match = re.search(r'chartOptionsData\s*=\s*(\{.*?\});', target_script, re.S)
+        match = re.search(r'1,000株あたりのビットコイン\', target_script, re.S)
         if not match:
-            match = re.search(r'({.*"chartOptionsData".*})', target_script, re.S)
+            match = re.search(r'1,000株あたりのビットコイン', target_script, re.S)
 
         if match:
             raw_json = match.group(1)
