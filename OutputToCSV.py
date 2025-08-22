@@ -1,11 +1,9 @@
 import re
-import json
 import requests
-import pandas as pd
 import streamlit as st
 from bs4 import BeautifulSoup
 
-st.title("Metaplanet Analytics グラフデータ収集")
+st.title("Metaplanet Analytics chartOptionsData 抽出（文字列モード）")
 
 url = "https://metaplanet.jp/jp/analytics"
 
@@ -16,43 +14,30 @@ if st.button("データ取得"):
     all_scripts = soup.find_all("script")
     found = False
 
-    st.subheader("取得した <script> タグの中から self.__next_f.push(...) を探索")
-
     for i, script in enumerate(all_scripts):
         script_content = script.string or ''.join(script.contents)
         if not script_content or "self.__next_f.push" not in script_content:
             continue
 
-        # push(...) の中の JSON風文字列をすべて抽出
         matches = re.findall(r'self\.__next_f\.push\(\[\d+,"(.*?)"\]\);', script_content, re.S)
         for j, escaped_str in enumerate(matches):
-            try:
-                decoded_str = bytes(escaped_str, "utf-8").decode("unicode_escape")
-                json_match = re.search(r'({\s*"chartOptionsData"\s*:\s*\[.*?\]})', decoded_str, re.S)
-                if json_match:
-                    json_str = json_match.group(1)
-                    data_obj = json.loads(json_str)
-                    chart_data_list = data_obj["chartOptionsData"]
+            decoded_str = bytes(escaped_str, "utf-8").decode("unicode_escape")
 
-                    for chart in chart_data_list:
-                        df = pd.DataFrame(chart["chartData"])
-                        df["label"] = chart.get("label", "")
-                        df["ticker"] = chart.get("ticker", "")
+            # chartOptionsData を含む部分を文字列として抽出
+            chart_match = re.search(r'("chartOptionsData"\s*:\s*\[.*?\])', decoded_str, re.S)
+            if chart_match:
+                chart_text = chart_match.group(1)
+                found = True
 
-                        st.subheader(chart.get("label", ""))
-                        st.write(df.head())
+                st.subheader(f"[{i}-{j}] chartOptionsData 抽出結果（文字列）")
+                st.code(chart_text[:3000])  # 長すぎる場合は先頭だけ表示
 
-                        csv = df.to_csv(index=False)
-                        st.download_button(
-                            label=f"{chart.get('ticker', 'chart')}.csv をダウンロード",
-                            data=csv,
-                            file_name=f"{chart.get('ticker', 'chart')}.csv",
-                            mime="text/csv"
-                        )
-                    found = True
-            except Exception as e:
-                st.error(f"[{i}-{j}] JSONパース失敗: {e}")
-                st.code(decoded_str[:1000])
+                st.download_button(
+                    label="chartOptionsData_raw.txt をダウンロード",
+                    data=chart_text,
+                    file_name="chartOptionsData_raw.txt",
+                    mime="text/plain"
+                )
 
     if not found:
         st.warning("chartOptionsData を含む self.__next_f.push(...) が見つかりませんでした")
