@@ -11,24 +11,22 @@ period = st.selectbox("期間を選択してください", ["1mo", "3mo", "6mo",
 btc_data = yf.download("BTC-JPY", period=period)
 stock_data = yf.download("3350.T", period=period)
 
-# 空データ対策
+# 空データチェック
 if btc_data.empty:
     st.error("BTC-JPY のデータが取得できませんでした。ティッカー名や期間を確認してください。")
 elif stock_data.empty:
     st.error("3350.T のデータが取得できませんでした。ティッカー名や期間を確認してください。")
 else:
-    # Series に名前を付ける（renameの代わり）
-    btc_close = btc_data['Close']
-    btc_close.name = 'BTC_JPY'
+    # Series の列名を明示的に DataFrame に変換
+    btc_close = pd.DataFrame(btc_data['Close']).rename(columns={'Close': 'BTC_JPY'})
+    stock_close = pd.DataFrame(stock_data['Close']).rename(columns={'Close': '3350.T'})
 
-    stock_close = stock_data['Close']
-    stock_close.name = '3350.T'
-
-    # index を自動で揃えて結合
+    # index を揃えて結合
     plot_df = pd.concat([btc_close, stock_close], axis=1)
     plot_df.dropna(inplace=True)
 
-    st.write("取得したデータ（先頭）:")
+    st.write("取得したデータ（列名確認）:")
+    st.write(plot_df.columns)
     st.dataframe(plot_df.head())
 
     # グラフ描画
