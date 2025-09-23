@@ -17,15 +17,15 @@ if btc_data.empty:
 elif stock_data.empty:
     st.error("3350.T のデータが取得できませんでした。ティッカー名や期間を確認してください。")
 else:
-    # データ整理（インデックスをそろえて結合）
-    plot_df = pd.concat(
-        [
-            btc_data['Close'].rename('BTC_JPY'),
-            stock_data['Close'].rename('3350.T')
-        ],
-        axis=1
-    )
+    # Series に名前を付ける（renameの代わり）
+    btc_close = btc_data['Close']
+    btc_close.name = 'BTC_JPY'
 
+    stock_close = stock_data['Close']
+    stock_close.name = '3350.T'
+
+    # index を自動で揃えて結合
+    plot_df = pd.concat([btc_close, stock_close], axis=1)
     plot_df.dropna(inplace=True)
 
     st.write("取得したデータ（先頭）:")
