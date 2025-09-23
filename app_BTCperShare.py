@@ -14,11 +14,15 @@ if uploaded_file is None:
     st.stop()
 clean_meta = pd.read_csv(uploaded_file)
 
-x = np.arange(len(clean_meta['DateLabel']))
+# データ確認（カラム名など）
+st.write("カラム名：", clean_meta.columns.tolist())
+st.write(clean_meta.head())
+
+x = np.arange(len(clean_meta['日付']))
 forecast_days = 20
 
 # 実データ
-x_actual = np.arange(len(clean_meta['DateLabel']))
+x_actual = np.arange(len(clean_meta['日付']))
 y_actual = clean_meta['希薄化率'].values
 y2_actual = clean_meta['BTC購入量'].values
 
@@ -37,14 +41,14 @@ fig, ax1 = plt.subplots(figsize=(14, 6), facecolor='black')
 fig.subplots_adjust(hspace=0.4)
 ax1.set_facecolor('black')
 
-ax1.scatter(clean_meta['DateLabel'], y_actual, color='orange', alpha=1, s=10,
+ax1.scatter(clean_meta['日付'], y_actual, color='orange', alpha=1, s=10,
             label='BTC purchasable per 1,000 shares')
-ax1.plot(clean_meta['DateLabel'], clean_meta['BTC/株'],
+ax1.plot(clean_meta['日付'], clean_meta['BTC/株'],
          label='BTC holdings per 1,000 shares',
          color='red', linewidth=3)
 
 ax3 = ax1.twinx()
-ax3.bar(clean_meta['DateLabel'], y2_actual, label='BTC Purchase Volume', color='cyan', alpha=0.8, width=1)
+ax3.bar(clean_meta['日付'], y2_actual, label='BTC Purchase Volume', color='cyan', alpha=0.8, width=1)
 ax3.set_ylabel('BTC Purchase Volume', color='cyan')
 ax3.tick_params(axis='y', colors='cyan')
 
@@ -59,8 +63,8 @@ ax1.grid(True, color='white', alpha=0.2)
 ax1.set_title('MetaPlanet BTC per 1000 shares', color='white')
 
 # x軸ラベル
-ax1.set_xticks(clean_meta['DateLabel'][::20])
-ax1.set_xticklabels(clean_meta['DateLabel'][::20], rotation=45, fontsize=12)
+ax1.set_xticks(clean_meta['日付'][::20])
+ax1.set_xticklabels(clean_meta['日付'][::20], rotation=45, fontsize=12)
 
 # 縦軸の指数表記をオフ
 ax1.yaxis.set_major_formatter(ScalarFormatter())
