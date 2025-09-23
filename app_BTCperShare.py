@@ -1,79 +1,44 @@
 import streamlit as st
-import numpy as np
+import yfinance as yf
 import pandas as pd
 import matplotlib.pyplot as plt
-from scipy.optimize import curve_fit
-from matplotlib.ticker import ScalarFormatter
-from datetime import datetime, timedelta
 
-st.title("MetaPlanet BTC per 1,000 Shares")
+st.title("Bitcoin（JPY）と 3350.T 株価の比較グラフ")
 
-# ▼ CSV読み込み
-uploaded_file = st.file_uploader("CSVファイルをアップロード", type="csv")
-if uploaded_file is None:
-    st.stop()
-clean_meta = pd.read_csv(uploaded_file)
+# 期間をユーザー指定できるように
+period = st.selectbox("期間を選択してください", ["1mo", "3mo", "6mo", "1y", "5y"], index=1)
 
-# データ確認（カラム名など）
-st.write("カラム名：", clean_meta.columns.tolist())
-st.write(clean_meta.head())
+# Bitcoin JPY建てを直接取得
+btc_data = yf.download("BTC-JPY", period=period)
 
-x = np.arange(len(clean_meta['日付']))
-forecast_days = 20
+# 3350.T (日本株)
+stock_data = yf.download("3350.T", period=period)
 
-# 実データ
-x_actual = np.arange(len(clean_meta['日付']))
-y_actual = clean_meta['希薄化率'].values
-y2_actual = clean_meta['BTC購入量'].values
+# データ整理
+plot_df = pd.DataFrame({
+    'BTC_JPY': btc_data['Close'],
+    '3350.T': stock_data['Close']
+})
 
-# フィッティング関数
-def exp_func(x, a, b):
-    return a * np.exp(b * x)
+# 欠損を削除
+plot_df.dropna(inplace=True)
 
-params, _ = curve_fit(exp_func, x_actual, y_actual, p0=(1, 0.01))
-a_fit, b_fit = params
-x_extended = np.arange(len(x_actual) + forecast_days)
-y_fit_extended = exp_func(x_extended, a_fit, b_fit)
-y_fit = exp_func(x_actual, a_fit, b_fit)
+st.write("取得したデータ（先頭）:")
+st.dataframe(plot_df.head())
 
-# 描画
-fig, ax1 = plt.subplots(figsize=(14, 6), facecolor='black')
-fig.subplots_adjust(hspace=0.4)
-ax1.set_facecolor('black')
+# グラフ描画
+st.subheader("価格推移グラフ")
 
-ax1.scatter(clean_meta['日付'], y_actual, color='orange', alpha=1, s=10,
-            label='BTC purchasable per 1,000 shares')
-ax1.plot(clean_meta['日付'], clean_meta['BTC/株'],
-         label='BTC holdings per 1,000 shares',
-         color='red', linewidth=3)
+fig, ax1 = plt.subplots(figsize=(10, 5))
+ax1.plot(plot_df.index, plot_df['BTC_JPY'], label="Bitcoin (JPY)", color='orange')
+ax1.set_ylabel("Bitcoin (JPY)", color='orange')
+ax1.tick_params(axis='y', labelcolor='orange')
 
-ax3 = ax1.twinx()
-ax3.bar(clean_meta['日付'], y2_actual, label='BTC Purchase Volume', color='cyan', alpha=0.8, width=1)
-ax3.set_ylabel('BTC Purchase Volume', color='cyan')
-ax3.tick_params(axis='y', colors='cyan')
+ax2 = ax1.twinx()
+ax2.plot(plot_df.index, plot_df['3350.T'], label="3350.T", color='blue')
+ax2.set_ylabel("3350.T 株価 (JPY)", color='blue')
+ax2.tick_params(axis='y', labelcolor='blue')
 
-ax1.set_ylim(0, 0.14)
-ax3.set_ylim(0, 3500)
-
-ax1.set_xlabel('Elapsed Days', color='white')
-ax1.set_ylabel('BTC Per 1,000 Shares', color='orange')
-ax1.tick_params(axis='x', colors='white')
-ax1.tick_params(axis='y', colors='orange')
-ax1.grid(True, color='white', alpha=0.2)
-ax1.set_title('MetaPlanet BTC per 1000 shares', color='white')
-
-# x軸ラベル
-ax1.set_xticks(clean_meta['日付'][::20])
-ax1.set_xticklabels(clean_meta['日付'][::20], rotation=45, fontsize=12)
-
-# 縦軸の指数表記をオフ
-ax1.yaxis.set_major_formatter(ScalarFormatter())
-ax1.ticklabel_format(style='plain', axis='y')
-
-legend1 = ax1.legend(loc='upper left', fontsize=12)
-legend1.get_frame().set_facecolor('black')
-for text in legend1.get_texts():
-    text.set_color('white')
-
-plt.tight_layout()
+plt.title("Bitcoin (JPY) vs 3350.T 株価")
+fig.tight_layout()
 st.pyplot(fig)
