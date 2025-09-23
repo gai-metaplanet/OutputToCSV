@@ -11,10 +11,6 @@ from datetime import datetime, timedelta
 
 st.title("MetaPlanet BTC per 1,000 Shares")
 
-# 日本語フォント（Windows用）
-jp_font = fm.FontProperties(fname='C:\\Windows\\Fonts\\meiryo.ttc')
-plt.rcParams['font.family'] = jp_font.get_name()
-
 x = np.arange(len(clean_meta['DateLabel']))  # X軸の位置
 forecast_days = 20
 
