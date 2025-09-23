@@ -43,22 +43,22 @@ ax1.set_facecolor('black')
 
 # 散布図・棒グラフ
 ax1.scatter(clean_meta['DateLabel'], y_actual, color='orange', alpha=1, s=10,
-            label='1000株あたりの購入可能BTC - BTC purchasable per 1,000 shares')
+            label='BTC purchasable per 1,000 shares')
 ax1.plot(clean_meta['DateLabel'], clean_meta['BTC/株'],
-         label='1000株あたりのBTC保有量 - BTC holdings per 1,000 shares',
+         label='BTC holdings per 1,000 shares',
          color='red', linewidth=3)
 
 ax3 = ax1.twinx()
-ax3.bar(clean_meta['DateLabel'], y2_actual, label='BTC購入量', color='cyan', alpha=0.8, width=1)
-ax3.set_ylabel('BTC購入量 BTC Purchase Volume', color='cyan')
+ax3.bar(clean_meta['DateLabel'], y2_actual, label='BTC Purchase Volume', color='cyan', alpha=0.8, width=1)
+ax3.set_ylabel('BTC Purchase Volume', color='cyan')
 ax3.tick_params(axis='y', colors='cyan')
 
 ax1.set_ylim(0, 0.14)
 ax3.set_ylim(0, 3500)
 
 # 軸ラベル・タイトル
-ax1.set_xlabel('経過日数 Elapsed Days', color='white', fontproperties=jp_font)
-ax1.set_ylabel('BTC/1000株 BTC Per 1,000 Shares', color='orange', fontproperties=jp_font)
+ax1.set_xlabel('Elapsed Days', color='white', fontproperties=jp_font)
+ax1.set_ylabel('BTC Per 1,000 Shares', color='orange', fontproperties=jp_font)
 ax1.tick_params(axis='x', colors='white')
 ax1.tick_params(axis='y', colors='orange')
 ax1.grid(True, color='white', alpha=0.2)
