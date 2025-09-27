@@ -17,16 +17,18 @@ if btc_data.empty:
 elif stock_data.empty:
     st.error("3350.T のデータが取得できませんでした。ティッカー名や期間を確認してください。")
 else:
-    # Series の列名を明示的に DataFrame に変換
-    btc_close = pd.DataFrame(btc_data['Close']).rename(columns={'Close': 'BTC_JPY'})
-    stock_close = pd.DataFrame(stock_data['Close']).rename(columns={'Close': '3350.T'})
+    # Close列を抽出して明示的に名前を付ける
+    btc_close = btc_data[['Close']].copy()
+    btc_close.columns = ['BTC_JPY']
+
+    stock_close = stock_data[['Close']].copy()
+    stock_close.columns = ['3350.T']
 
     # index を揃えて結合
     plot_df = pd.concat([btc_close, stock_close], axis=1)
     plot_df.dropna(inplace=True)
 
-    st.write("取得したデータ（列名確認）:")
-    st.write(plot_df.columns)
+    st.write("取得したデータ列名:", plot_df.columns.tolist())
     st.dataframe(plot_df.head())
 
     # グラフ描画
