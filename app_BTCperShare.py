@@ -29,7 +29,7 @@ else:
     plot_df.dropna(inplace=True)
 
     # BTC ÷ 3350.T の列を追加
-    plot_df['Ratio'] = plot_df['BTC_JPY'] / plot_df['3350.T'] / 1000
+    plot_df['Ratio'] = plot_df['3350.T'] / plot_df['BTC_JPY'] / 1000
 
     st.write("取得したデータ列名:", plot_df.columns.tolist())
     st.dataframe(plot_df.head())
@@ -55,7 +55,7 @@ ax1.spines['left'].set_color('orange')
 # 2軸目（株価）
 ax2 = ax1.twinx()
 ax2.set_facecolor('black')  # twinx側も黒に
-ax2.plot(plot_df.index, plot_df['3350.T'], label="3350.T", color='blue')
+ax2.plot(plot_df.index, plot_df['3350.T'], label="3350.T", color='cyan')
 ax2.set_ylabel("3350.T (JPY)", color='blue')
 ax2.tick_params(axis='y', labelcolor='blue')
 ax2.spines['right'].set_color('blue')
