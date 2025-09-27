@@ -45,7 +45,7 @@ fig.patch.set_facecolor('black')
 ax1.set_facecolor('black')
 
 # 1軸目（Bitcoin）
-ax1.plot(plot_df.index, plot_df['Ratio']], label="Bitcoin purchargable per 1,000 shares", color='orange')
+ax1.plot(plot_df.index, plot_df['Ratio'], label="Bitcoin purchargable per 1,000 shares", color='orange')
 ax1.set_ylabel("Bitcoin purchargable", color='orange')
 ax1.tick_params(axis='y', labelcolor='orange')
 ax1.tick_params(axis='x', colors='white')  # x軸ラベルも白に
