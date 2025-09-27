@@ -35,6 +35,17 @@ else:
     st.write("取得したデータ列名:", plot_df.columns.tolist())
     st.dataframe(plot_df.head())
 
+# DataFrameをCSV文字列に変換
+csv = plot_df.to_csv(index=True)  # index=Falseにすると日付インデックスが出力されない
+
+# ダウンロードボタン
+st.download_button(
+    label="グラフデータをCSVでダウンロード",
+    data=csv,
+    file_name='graph_data.csv',
+    mime='text/csv'
+)
+
 # グラフ描画
 st.subheader("価格推移グラフ")
 
@@ -50,19 +61,19 @@ ax1.plot(plot_df.index, plot_df['BTC purchasable per shares'], label="Bitcoin pu
 # ★ここで追加線を描画★
 ax1.plot(plot_df.index, plot_df['BTC holdings per shares'], label="Bitcoin holdings per 1,000 shares", color='lime')
 
-ax1.set_ylabel("Bitcoin purchasable", color='orange')
-ax1.tick_params(axis='y', labelcolor='orange')
+ax1.set_ylabel("Bitcoin purchasable", color='white')
+ax1.tick_params(axis='y', labelcolor='white')
 ax1.tick_params(axis='x', colors='white')  # x軸ラベルも白に
 ax1.spines['bottom'].set_color('white')
-ax1.spines['left'].set_color('orange')
+ax1.spines['left'].set_color('white')
 
 # 2軸目（株価）
 ax2 = ax1.twinx()
 ax2.set_facecolor('black')  # twinx側も黒に
 ax2.plot(plot_df.index, plot_df['3350.T'], label="3350.T", color='cyan')
-ax2.set_ylabel("3350.T (JPY)", color='blue')
-ax2.tick_params(axis='y', labelcolor='blue')
-ax2.spines['right'].set_color('blue')
+ax2.set_ylabel("3350.T (JPY)", color='cyan')
+ax2.tick_params(axis='y', labelcolor='cyan')
+ax2.spines['right'].set_color('cyan')
 
 # タイトルを白に
 plt.title("Bitcoin (JPY) vs 3350.T", color='white')
