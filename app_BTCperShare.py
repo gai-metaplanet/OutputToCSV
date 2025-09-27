@@ -29,7 +29,7 @@ else:
     plot_df.dropna(inplace=True)
 
     # BTC ÷ 3350.T の列を追加
-    plot_df['BTC purchasable per shares'] = plot_df['3350.T'] / plot_df['BTC_JPY'] / 1000
+    plot_df['BTC purchasable per shares'] = plot_df['3350.T'] / plot_df['BTC_JPY'] * 1000
     plot_df['BTC holdings per shares'] = 0
 
     st.write("取得したデータ列名:", plot_df.columns.tolist())
