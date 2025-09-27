@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 
 st.title("Bitcoin（JPY）と 3350.T 株価の比較グラフ")
 
-period = st.selectbox("期間を選択してください", ["1mo", "3mo", "6mo", "1y", "5y"], index=0)
+period = st.selectbox("期間を選択してください", ["1mo", "3mo", "6mo", "1y", "2y"], index=0)
 
 # データ取得
 btc_data = yf.download("BTC-JPY", period=period)
@@ -29,7 +29,7 @@ else:
     plot_df.dropna(inplace=True)
 
     # BTC ÷ 3350.T の列を追加
-    plot_df['BTC purchasable per shares'] = plot_df['3350.T'] / plot_df['BTC_JPY'] * 1000
+    plot_df['BTC purchasable per shares'] = plot_df['3350.T'] / plot_df['BTC_JPY'] * 1000 / 1.25
     plot_df['BTC holdings per shares'] = 0
 
     st.write("取得したデータ列名:", plot_df.columns.tolist())
