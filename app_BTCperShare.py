@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 
 st.title("Bitcoin（JPY）と 3350.T 株価の比較グラフ")
 
-period = st.selectbox("期間を選択してください", ["1mo", "3mo", "6mo", "1y", "5y"], index=1)
+period = st.selectbox("期間を選択してください", ["1mo", "3mo", "6mo", "1y", "5y"], index=0)
 
 # データ取得
 btc_data = yf.download("BTC-JPY", period=period)
@@ -29,7 +29,8 @@ else:
     plot_df.dropna(inplace=True)
 
     # BTC ÷ 3350.T の列を追加
-    plot_df['Ratio'] = plot_df['3350.T'] / plot_df['BTC_JPY'] / 1000
+    plot_df['BTC purchasable per shares'] = plot_df['3350.T'] / plot_df['BTC_JPY'] / 1000
+    plot_df['BTC holdings per shares'] = 0
 
     st.write("取得したデータ列名:", plot_df.columns.tolist())
     st.dataframe(plot_df.head())
@@ -45,8 +46,11 @@ fig.patch.set_facecolor('black')
 ax1.set_facecolor('black')
 
 # 1軸目（Bitcoin）
-ax1.plot(plot_df.index, plot_df['Ratio'], label="Bitcoin purchargable per 1,000 shares", color='orange')
-ax1.set_ylabel("Bitcoin purchargable", color='orange')
+ax1.plot(plot_df.index, plot_df['BTC purchasable per shares'], label="Bitcoin purchasable per 1,000 shares", color='orange')
+# ★ここで追加線を描画★
+ax1.plot(plot_df.index, plot_df['BTC holdings per shares'], label="Bitcoin holdings per 1,000 shares", color='lime')
+
+ax1.set_ylabel("Bitcoin purchasable", color='orange')
 ax1.tick_params(axis='y', labelcolor='orange')
 ax1.tick_params(axis='x', colors='white')  # x軸ラベルも白に
 ax1.spines['bottom'].set_color('white')
