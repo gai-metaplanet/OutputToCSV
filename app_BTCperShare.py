@@ -28,22 +28,41 @@ else:
     plot_df = pd.concat([btc_close, stock_close], axis=1)
     plot_df.dropna(inplace=True)
 
+    # BTC ÷ 3350.T の列を追加
+    plot_df['Ratio'] = plot_df['BTC_JPY'] / plot_df['3350.T'] / 1000
+
     st.write("取得したデータ列名:", plot_df.columns.tolist())
     st.dataframe(plot_df.head())
 
-    # グラフ描画
-    st.subheader("価格推移グラフ")
+# グラフ描画
+st.subheader("価格推移グラフ")
 
-    fig, ax1 = plt.subplots(figsize=(10, 5))
-    ax1.plot(plot_df.index, plot_df['BTC_JPY'], label="Bitcoin (JPY)", color='orange')
-    ax1.set_ylabel("Bitcoin (JPY)", color='orange')
-    ax1.tick_params(axis='y', labelcolor='orange')
+fig, ax1 = plt.subplots(figsize=(10, 5))
 
-    ax2 = ax1.twinx()
-    ax2.plot(plot_df.index, plot_df['3350.T'], label="3350.T", color='blue')
-    ax2.set_ylabel("3350.T 株価 (JPY)", color='blue')
-    ax2.tick_params(axis='y', labelcolor='blue')
+# 図全体の背景を黒に
+fig.patch.set_facecolor('black')
+# ax1の背景も黒に
+ax1.set_facecolor('black')
 
-    plt.title("Bitcoin (JPY) vs 3350.T 株価")
-    fig.tight_layout()
-    st.pyplot(fig)
+# 1軸目（Bitcoin）
+ax1.plot(plot_df.index, plot_df['Ratio']], label="Bitcoin purchargable per 1,000 shares", color='orange')
+ax1.set_ylabel("Bitcoin purchargable", color='orange')
+ax1.tick_params(axis='y', labelcolor='orange')
+ax1.tick_params(axis='x', colors='white')  # x軸ラベルも白に
+ax1.spines['bottom'].set_color('white')
+ax1.spines['left'].set_color('orange')
+
+# 2軸目（株価）
+ax2 = ax1.twinx()
+ax2.set_facecolor('black')  # twinx側も黒に
+ax2.plot(plot_df.index, plot_df['3350.T'], label="3350.T", color='blue')
+ax2.set_ylabel("3350.T (JPY)", color='blue')
+ax2.tick_params(axis='y', labelcolor='blue')
+ax2.spines['right'].set_color('blue')
+
+# タイトルを白に
+plt.title("Bitcoin (JPY) vs 3350.T", color='white')
+
+fig.tight_layout()
+st.pyplot(fig)
+
