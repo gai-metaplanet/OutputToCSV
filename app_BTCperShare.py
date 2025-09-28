@@ -64,9 +64,9 @@ if plot_df is not None:
     ax1.set_facecolor('black')
 
     ax1.plot(plot_df.index, plot_df['BTC purchasable per shares'],
-             label="Bitcoin purchasable per 1,000 shares", color='orange')
+             label="Bitcoin purchasable per 1,000 shares", color='orange', linewidth=1.2)
     ax1.plot(plot_df.index, plot_df['BTC holdings per shares'],
-             label="Bitcoin holdings per 1,000 shares", color='lime')
+             label="Bitcoin holdings per 1,000 shares", color='red', linewidth=1.2)
 
     ax1.set_ylabel("Bitcoin purchasable", color='white')
     ax1.tick_params(axis='y', labelcolor='white')
@@ -77,7 +77,7 @@ if plot_df is not None:
     # 2軸目（株価）
     ax2 = ax1.twinx()
     ax2.set_facecolor('black')
-    ax2.plot(plot_df.index, plot_df['3350.T'], label="3350.T", color='cyan')
+    ax2.plot(plot_df.index, plot_df['3350.T'], label="3350.T", color='cyan', alpha=0.5)
     ax2.set_ylabel("3350.T (JPY)", color='cyan')
     ax2.tick_params(axis='y', labelcolor='cyan')
     ax2.spines['right'].set_color('cyan')
