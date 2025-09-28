@@ -70,7 +70,7 @@ if plot_df is not None:
     # 過去の最高値の線（累積最大値）
     y = plot_df['BTC holdings per shares']
     max_line = y.cummax()
-    ax1.plot(plot_df.index, max_line, label="Bitcoin holdings per 1,000 shares(Cumulative Maximum)", color='red', linestyle='--', alpha=1.2)
+    ax1.plot(plot_df.index, max_line, label="Bitcoin holdings per 1,000 shares(Cumulative Maximum)", color='red', linestyle='--', linewidth=1.2)
     
     ax1.set_ylabel("Bitcoin purchasable", color='white')
     ax1.tick_params(axis='y', labelcolor='white')
