@@ -62,12 +62,16 @@ if plot_df is not None:
 
     fig.patch.set_facecolor('black')
     ax1.set_facecolor('black')
-
+  
     ax1.plot(plot_df.index, plot_df['BTC purchasable per shares'],
              label="Bitcoin purchasable per 1,000 shares", color='orange', linewidth=1.2)
     ax1.plot(plot_df.index, plot_df['BTC holdings per shares'],
              label="Bitcoin holdings per 1,000 shares", color='red', linewidth=1.2)
-
+    # 過去の最高値の線（累積最大値）
+    y = plot_df['BTC holdings per shares']
+    max_line = y.cummax()
+    ax1.plot(plot_df.index, max_line, label="過去最高値ライン", color='red', linestyle='--', alpha=0.6)
+    
     ax1.set_ylabel("Bitcoin purchasable", color='white')
     ax1.tick_params(axis='y', labelcolor='white')
     ax1.tick_params(axis='x', colors='white')
@@ -82,7 +86,7 @@ if plot_df is not None:
     ax2.tick_params(axis='y', labelcolor='cyan')
     ax2.spines['right'].set_color('cyan')
 
-    plt.title("Bitcoin (JPY) vs 3350.T", color='white')
+    plt.title("BTC Purchase Capacity and Holdings per 1,000 Shares", color='white')
 
     fig.tight_layout()
     st.pyplot(fig)
